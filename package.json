@@ -1,0 +1,27 @@
+{
+  "name": "bones",
+  "version": "0.1.0",
+  "description": "Bones",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infinityplusone/bones.git"
+  },
+  "author": "Jonathan \"Yoni\" Knoll",
+  "license": "LicenseRed-README.md",
+  "private": true,
+  "main": "Gruntfile.js",
+  "files": [
+    "tasks"
+  ],
+  "devDependencies": {
+    "colors": "^1.1.2",
+    "lodash": "^3.10.1",
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "bones",
+  "version": "0.1.0",
+  "description": "Bones",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infinityplusone/bones.git"
+  },
+  "authors": [
+    "Jonathan \"Yoni\" Knoll"
+  ],
+  "license": "LicenseRed-README.md",
+  "private": true,
+  "homepage": "https://github.com/infinityplusone/bones.git",
+  "main": "Gruntfile.js",
+  "moduleType": [],
+  "dependencies": {
+    "jquery": "*",
+    "jquery-enable": "*",
+    "lodash": "^4.11.1",
+    "lodash-inflection": "^1.3.2",
+    "requirejs": "^2.1.22",
+    "requirejs-text": "^2.0.12",
+    "brain": "git@github.com:infinityplusone/brain.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "tasks"
+  ]
+}

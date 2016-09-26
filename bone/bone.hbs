@@ -1,0 +1,36 @@
+<script type="text/x-handlebars-template" data-partial-id="bone">
+<div data-bone-type="{{type}}"{{#if class}} class="{{class}}"{{/if}} {{{bone-attributes this}}}>
+	{{> @partial-block}}
+</div>
+</script>
+
+<script type="text/x-handlebars-template" data-partial-id="bone-base">
+<div id="{{type}}-{{id}}" class="{{join cls}}" data-bone-type="{{type}}">
+	<div class="bone__content">
+		{{> @partial-block}}
+	</div>
+</div>
+</script>
+
+<script type="text/x-handlebars-template" data-partial-id="bone-simple">
+<div id="{{type}}-{{id}}" class="{{join cls}}" data-bone-type="{{type}}">
+	<div class="bone__content">
+		<header class="bone__header">
+			{{#if title}}<h1 class="bone__title" {{#if this.count}}data-count="{{this.count.length}}"{{/if}}>{{title}}</h1>{{/if}}
+			{{#if actions}}
+			<div class="bone__actions">
+				{{#each actions}}
+				<a href="#" data-toggle="{{name}}"{{#if target}}data-target="{{target}}"{{/if}}><i class="icon sch-{{icon}}"></i></a>
+				{{/each}}
+			</div>
+			{{/if}}
+		</header>
+		<div class="bone__body">
+			{{{content}}}
+		</div>
+		{{#if footer}}
+		{{{footer}}}
+		{{/if}}
+	</div>
+</div>
+</script>
