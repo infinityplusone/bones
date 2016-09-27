@@ -40,7 +40,7 @@ define([
   'lodash',
   'bones/bone/bone', // required so the world makes sense to it
   'brain'
-], function(Bone, $, _) {
+], function($, _, Bone) {
 
   function SkeletonError(message) {
     this.name = 'SkeletonError';
@@ -55,10 +55,20 @@ define([
     VERSION: '0.1.0',
 
     name: 'Skeleton',
+
     shapes: {}, // this will store all the prototypes for bones
+
+    messages: $.extend([], {
+      push: function(val) {
+        this[this.length] = val;
+        console.log(val);
+      }
+    }),
+
     options: {
       contentSelector: 'body'
     }, // options
+
     state: {
       ready: false,
       loading: true,
@@ -117,7 +127,7 @@ define([
       var skel = this,
           $root = $elem ? $elem : $(skel.options.contentSelector),
           $orphans;
-
+      console.log($root.get(0));
       $orphans = $root.find('[data-bone]:not([data-generated])');
 
       skel.initializeBones($.makeArray($orphans.map(function(i, o) {
@@ -148,7 +158,7 @@ define([
 
       settings = settings ? settings : { };
 
-      skel.options.config(settings.options);
+      $.extend(skel.options, settings.options);
 
       skel
         .on('skeleton:ready', skel.onSkeletonReady)
