@@ -94,30 +94,6 @@ define([
     type: 'bone',
 
 
-    /// Deprecated methods
-
-    /** deprecated v0.7.0 - use `beforeDisplay` or `afterDisplay` instead
-     *
-     * Add custom interactions to all instances of a bone type
-     * Interactions should be bound to `this.$elem`
-     */
-    _addInteractions: function() {}, // addInteractions
-
-    /** deprecated v0.7.0 - use `beforeDisplay` instead
-     *
-     * Make modifications to a bone after the markup has been generated but before interactions have been bound to it.
-     */
-    _enhanceBone: function() {}, // _enhanceBone
-
-    /** deprecated v0.7.0 - use `beforeRender` instead
-     *
-     * First thing called by the bone's `generate` method
-     * Meant for any data prep/massaging
-     */
-    _prepBone: function() {}, // prepBone
-
-
-
     /**
      * Overridable Event Handlers
      * Interactions should be bound to `this.$elem`
@@ -201,13 +177,12 @@ define([
 
     /**
      * Display a bone
-     * @param {Boolean} If true, adds a `recently-added` class to the element
-     *                  then removes it after 500ms
+     * @return {Object} The bone
      */
-    display: function(highlight) {
-      // this.trigger('bone:display');
+    display: function() {
+      this.trigger('bone:display');
       this.ready(true);
-      this.trigger('bone:display'); // This should really become `bone:displayed`
+      this.trigger('bone:displayed');
       return this;
     }, // display
 
@@ -222,10 +197,6 @@ define([
       $.extend(bone.data, {id: bone.id});
 
       bone.options = $.extend({}, Bone.options, bone.options);
-
-      if(bone.options.commentable || bone.options.dismissable || bone.options.flaggable || bone.options.pinnable || bone.options.shareable) {
-        bone.options.utilityBar = true;
-      }
 
       bone.state = {
         ready: false,
@@ -242,9 +213,9 @@ define([
         .on('bone:rendered', bone._enhanceBone) // deprecated v0.7.0
         .on('bone:rendered', _addDefaultInteractions)
         .on('bone:rendered', bone._addInteractions) // deprecated v0.7.0
-        .on('bone:rendered', bone.beforeDisplay)
         .on('bone:ready', _onReady)
-        .on('bone:display', bone.afterDisplay)
+        .on('bone:display', bone.beforeDisplay)
+        .on('bone:displayed', bone.afterDisplay)
         .on('bone:fail', _onFail)
         .on('bone:fail', bone.afterFail);
 
