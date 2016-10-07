@@ -127,7 +127,6 @@ define([
       var skel = this,
           $root = $elem ? $elem : $(skel.options.contentSelector),
           $orphans;
-      console.log($root.get(0));
       $orphans = $root.find('[data-bone]:not([data-generated])');
 
       skel.initializeBones($.makeArray($orphans.map(function(i, o) {
