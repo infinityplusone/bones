@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.1.0
- * Date:       2016-09-26
+ * Version:    0.2.0
+ * Date:       2016-10-07
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.1.0',
+    VERSION: '0.2.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -181,7 +181,9 @@ define([
      */
     display: function() {
       this.trigger('bone:display');
+      this.beforeDisplay();
       this.ready(true);
+      this.afterDisplay();
       this.trigger('bone:displayed');
       return this;
     }, // display
@@ -203,29 +205,16 @@ define([
         selected: false
       };
 
-      // bind all the internal and external handlers to the bone's events
-      bone
-        .on('bone:generate', bone.beforeRender)
-        .on('bone:generate', bone._prepBone) // deprecated v0.7.0
-        .on('bone:generate', _generateMarkup)
-        .on('bone:render', _applyClasses)
-        .on('bone:rendered', _bindBoneToElement)
-        .on('bone:rendered', bone._enhanceBone) // deprecated v0.7.0
-        .on('bone:rendered', _addDefaultInteractions)
-        .on('bone:rendered', bone._addInteractions) // deprecated v0.7.0
-        .on('bone:ready', _onReady)
-        .on('bone:display', bone.beforeDisplay)
-        .on('bone:displayed', bone.afterDisplay)
-        .on('bone:fail', _onFail)
-        .on('bone:fail', bone.afterFail);
-
       // trigger the `bone:generate` event to start the ball rolling
       bone.trigger('bone:generate');
+      bone.beforeRender();
+      _generateMarkup.call(bone);
 
       if(typeof bone.$elem!=='object') {
         throw new BoneError('_generateMarkup failed to create a DOM element for ' + bone.toString(), bone);
       }
       bone.state.generated = true;
+      _onGenerated.call(bone);
       bone.trigger('bone:generated');
 
       return bone;
@@ -362,6 +351,7 @@ define([
       else {
         this.$elem.removeClass('ready');
       }
+      _onReady.call(this, this.state.ready);
       this.trigger('bone:ready', this.state.ready);
       return this.state.ready;
     }, // ready
@@ -456,9 +446,10 @@ define([
    * This method *must* create a jQuery-wrapped HTML element and assign it to the bone's $elem property
    * @overridable
    */
-  function _generateMarkup(e) {
+  function _generateMarkup() {
     var bone = this;
     bone.trigger('bone:render');
+    _applyClasses.call(this);
 
     if(typeof brain.templates[bone.type]==='undefined') {
       throw new BoneError('Missing template for `' + bone.type + '`', bone);
@@ -467,9 +458,13 @@ define([
       bone.content = brain.templates[bone.type](bone);
       bone.$elem = $(bone.content);
       bone.$elem.addClass(bone.cls.join(' '));
+      _bindBoneToElement.call(this);
+      _addDefaultInteractions.call(this);
       bone.trigger('bone:rendered');
     }
     catch(err) {
+      _onFail.call(this, err);
+      bone.afterFail();
       bone.trigger('bone:fail', err);
       brain.log(err.name + ': ' + err.message, 'warn');
       throw new BoneError('Unable to generate markup for `' + bone.type + '`', bone);
@@ -484,7 +479,6 @@ define([
     this.elem = opts.elem;
     $.extend(this.options, $(this.elem).data());
     this.trigger('bone:create');
-    this.on('bone:generated', _onGenerated);
     func(opts);
     this.trigger('bone:created');
     return this;
