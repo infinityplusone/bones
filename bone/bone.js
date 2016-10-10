@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.2.0
- * Date:       2016-10-07
+ * Version:    0.3.0
+ * Date:       2016-10-10
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.2.0',
+    VERSION: '0.3.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -196,9 +196,10 @@ define([
       var bone = this;
 
       // this should be moved into a new `_prepBone`-like method
-      $.extend(bone.data, {id: bone.id});
+      // $.extend(bone.data, {id: bone.id});
+      $.extend(bone.options, $(bone.elem).data());
 
-      bone.options = $.extend({}, Bone.options, bone.options);
+      // bone.options = $.extend({}, Bone.options, bone.options);
 
       bone.state = {
         ready: false,
@@ -270,7 +271,7 @@ define([
     /**
      * Initializes a bone's prototype so it can be used to create buckets
      */
-    init: function(skel, config) {
+    init: function(skel) {
       var bone = this;
       var defaultSettings = bone.defaultSettings;
 
@@ -283,18 +284,27 @@ define([
       // bind the bone to its skeleton
       bone.skel = skel;
 
-      // if any config options have been set, pass them through now
-      $.extend(true, bone, config);
-
-      // wrap this bone's prototype in a function that will 
-      bone.create = _.wrap(bone.create, _onCreate);
-
-      bone
-        .on('bone:create', bone.beforeCreate)
-        .on('bone:created', bone.afterCreate);
-
       return bone;
     }, // init
+
+    /**
+     * Creates an instance of a bone
+     *
+     * @param opts {Object} One or more bone mixin objects. These must have an `applyMixin` method as well as a name property
+     */
+    make: function(opts) {
+      var bone = this.create(opts);
+
+      bone.id = _.uniqueId();
+
+      bone.on('bone:created', bone.afterCreate);
+
+      bone.afterCreate();
+
+      bone.trigger('bone:created');
+
+      return bone;
+    }, // make
 
     /**
      *  @param mixins {String|Array} One or more bone mixin objects. These must have an `applyMixin` method as well as a name property
@@ -471,18 +481,6 @@ define([
     }
   } // _generateMarkup
 
-  /**
-   * Internal method called when a new instance of a bone is created
-   */
-  function _onCreate(func, opts) {
-    this.id = _.uniqueId();
-    this.elem = opts.elem;
-    $.extend(this.options, $(this.elem).data());
-    this.trigger('bone:create');
-    func(opts);
-    this.trigger('bone:created');
-    return this;
-  } // _onCreate
 
   /**
    * Internal method called when a bone fails to properly render

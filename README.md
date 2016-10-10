@@ -1,2 +1,2 @@
-# Bones v0.2.0
+# Bones v0.3.0
 

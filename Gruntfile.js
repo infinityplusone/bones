@@ -2,8 +2,8 @@
  * bones Gruntfile
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.2.0
- * Date:       2016-10-07
+ * Version:    0.3.0
+ * Date:       2016-10-10
  *
  */
 

@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.2.0
- * Date:       2016-10-07
+ * Version:    0.3.0
+ * Date:       2016-10-10
  *
  * Notes: 
  *
@@ -52,7 +52,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.2.0',
+    VERSION: '0.3.0',
 
     name: 'Skeleton',
 
@@ -102,8 +102,8 @@ define([
       opts = $.extend(opts, {
         options: $.extend(true, {}, prototype.options, opts.options)
       });
-      
-      bone = prototype.create(opts);
+
+      bone = prototype.make(opts);
 
       bone.on('*', function(e, data) {
         switch(e.originalEvent.type) {
@@ -135,7 +135,8 @@ define([
         $orphans.each(function(j, v) {
           skel.createBone({
             type: v.getAttribute('data-bone'),
-            elem: v
+            elem: v,
+            options: $(v).data()
           }).on('bone:generated', skel.onBoneGenerated).generate().display();
         });
       });
