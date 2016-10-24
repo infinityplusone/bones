@@ -2,8 +2,8 @@
  * Provides destroy.js as Grunt task
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.3.0
- * Date:       2016-10-10
+ * Version:    0.4.0
+ * Date:       2016-10-24
  *
  */
 

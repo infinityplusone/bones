@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.3.0
- * Date:       2016-10-10
+ * Version:    0.4.0
+ * Date:       2016-10-24
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.3.0',
+    VERSION: '0.4.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -206,10 +206,11 @@ define([
         selected: false
       };
 
+      bone.elem.setAttribute('data-generate', 'loading');
       // trigger the `bone:generate` event to start the ball rolling
       bone.trigger('bone:generate');
       bone.beforeRender();
-      _generateMarkup.call(bone);
+      bone = _generateMarkup.call(bone);
 
       if(typeof bone.$elem!=='object') {
         throw new BoneError('_generateMarkup failed to create a DOM element for ' + bone.toString(), bone);
@@ -468,6 +469,7 @@ define([
       bone.content = brain.templates[bone.type](bone);
       bone.$elem = $(bone.content);
       bone.$elem.addClass(bone.cls.join(' '));
+      // bone.$elem.data('bone', bone);
       _bindBoneToElement.call(this);
       _addDefaultInteractions.call(this);
       bone.trigger('bone:rendered');
@@ -479,6 +481,7 @@ define([
       brain.log(err.name + ': ' + err.message, 'warn');
       throw new BoneError('Unable to generate markup for `' + bone.type + '`', bone);
     }
+    return bone;
   } // _generateMarkup
 
 

@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.3.0
- * Date:       2016-10-10
+ * Version:    0.4.0
+ * Date:       2016-10-24
  *
  * Notes: 
  *
@@ -42,6 +42,8 @@ define([
   'brain'
 ], function($, _, Bone) {
 
+  var UNGENERATED_BONE = '[data-bone]:not([data-generated]):not([data-generating])';
+
   function SkeletonError(message) {
     this.name = 'SkeletonError';
     this.message = message || '';
@@ -52,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.3.0',
+    VERSION: '0.4.0',
 
     name: 'Skeleton',
 
@@ -107,7 +109,7 @@ define([
 
       bone.on('*', function(e, data) {
         switch(e.originalEvent.type) {
-          case 'bone:ready':
+          case 'bone:generated':
             skel.findBones(null, this.$elem);
             break;
           default:
@@ -127,8 +129,9 @@ define([
       var skel = this,
           $root = $elem ? $elem : $(skel.options.contentSelector),
           $orphans;
-      $orphans = $root.find('[data-bone]:not([data-generated])');
-
+      
+      $orphans = $root.find(UNGENERATED_BONE);//.add($root.filter(UNGENERATED_BONE));
+      
       skel.initializeBones($.makeArray($orphans.map(function(i, o) {
         return o.getAttribute('data-bone');
       })), function() { // callback
@@ -165,6 +168,11 @@ define([
         .on('skeleton:bones-loaded', skel.onBonesLoaded)
         .on('skeleton:bone-added', skel.onBoneAdded);
 
+      if(typeof settings.handlers==='object') {
+        Object.keys(settings.handlers).forEach(function(evt) {
+          skel.on(evt, settings.handlers[evt]);
+        });
+      }
 
       skel.findBones();
 
@@ -184,6 +192,8 @@ define([
           skel.trigger('skeleton:ready');
         }
       }, 5);
+
+      return skel;
 
     }, // init
 
@@ -214,6 +224,10 @@ define([
         }
       });
     }, // initializeBones
+
+    kill: function() {
+
+    }, // kill
 
     /*
      * Fires when a bone has been added anywhere. This can't be good
