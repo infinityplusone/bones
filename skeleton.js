@@ -4,7 +4,7 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.4.0
+ * Version:    0.5.0
  * Date:       2016-10-24
  *
  * Notes: 
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.4.0',
+    VERSION: '0.5.0',
 
     name: 'Skeleton',
 
