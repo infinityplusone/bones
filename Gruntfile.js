@@ -25,5 +25,10 @@ module.exports = function(grunt) {
   });
 
   grunt.loadTasks('tasks');
+
+  grunt.registerTask('build', function() {
+    grunt.file.write('VERSION', pkg.version);
+  });
+
   console.log('\n');
 };
