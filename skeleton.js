@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.5.0
- * Date:       2016-10-24
+ * Version:    0.5.1
+ * Date:       2016-10-26
  *
  * Notes: 
  *
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.5.0',
+    VERSION: '0.5.1',
 
     name: 'Skeleton',
 
@@ -174,6 +174,7 @@ define([
         });
       }
 
+      clearInterval(skel.state.loading);
       skel.findBones();
 
       // this is the only place where a race condition might be created
