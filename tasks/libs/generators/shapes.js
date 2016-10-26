@@ -2,7 +2,7 @@
  * Provides generate:shapes to generate Grunt Task
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.5.1
+ * Version:    0.6.0
  * Date:       2016-10-26
  *
  */
