@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.6.1
- * Date:       2016-10-26
+ * Version:    0.7.0
+ * Date:       2016-10-27
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.6.1',
+    VERSION: '0.7.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -158,12 +158,16 @@ define([
      */
     destroy: function(destroy) {
       var bone = this;
+
       bone.on('bone:ready', function() {
         bone.$elem.remove();
         if(bone.$ref && destroy) {
           bone.$ref.remove();
         }
         bone.$elem.unbind();
+        delete(bone.$elem);
+        bone.elem.removeAttribute('data-generate');
+        bone.elem.removeAttribute('data-generated');
         bone.trigger('bone:destroy');
         bone.unbind();
         if(typeof destroy==='function') {
@@ -173,6 +177,7 @@ define([
       if(!bone.state.busy) {
         bone.ready(false);
       }
+      return bone;
     }, // destroy
 
     /**
@@ -368,6 +373,15 @@ define([
     }, // ready
 
     /**
+     * Destroy a bone completely, then generate it again
+     *
+     * @return {String} The bone
+     */
+    regenerate: function() {
+      return this.destroy().generate();
+    }, // regenerate
+
+    /**
      * @return {String} The bone's type
      */
     toString: function() {
@@ -459,17 +473,18 @@ define([
    */
   function _generateMarkup() {
     var bone = this;
+    var tmpl = !!bone.options.template ? bone.options.template : bone.type;
+
     bone.trigger('bone:render');
     _applyClasses.call(this);
 
-    if(typeof brain.templates[bone.type]==='undefined') {
-      throw new BoneError('Missing template for `' + bone.type + '`', bone);
+    if(typeof brain.templates[tmpl]==='undefined') {
+      throw new BoneError('Missing template `' + tmpl + '` for `' + bone.type + '`', bone);
     }
     try {
-      bone.content = brain.templates[bone.type](bone);
+      bone.content = brain.templates[tmpl](bone);
       bone.$elem = $(bone.content);
       bone.$elem.addClass(bone.cls.join(' '));
-      // bone.$elem.data('bone', bone);
       _bindBoneToElement.call(this);
       _addDefaultInteractions.call(this);
       bone.trigger('bone:rendered');
