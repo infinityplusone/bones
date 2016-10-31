@@ -2,8 +2,8 @@
  * Provides helpers for use in generate & destroy Grunt tasks
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.0
- * Date:       2016-10-27
+ * Version:    0.7.1
+ * Date:       2016-10-31
  *
  */
 

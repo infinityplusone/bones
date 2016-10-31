@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.0
- * Date:       2016-10-27
+ * Version:    0.7.1
+ * Date:       2016-10-31
  *
  * Notes: 
  *
@@ -42,7 +42,7 @@ define([
   'brain'
 ], function($, _, Bone) {
 
-  var UNGENERATED_BONE = '[data-bone]:not([data-generated]):not([data-generating])';
+  var UNGENERATED_BONE = '[data-bone]:not([data-generated]):not([data-generate])';
 
   function SkeletonError(message) {
     this.name = 'SkeletonError';
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.7.0',
+    VERSION: '0.7.1',
 
     name: 'Skeleton',
 
@@ -76,6 +76,7 @@ define([
       loading: true,
       loaded: false
     }, // state
+
 
     /*
      * Create a new bone instance and return it
@@ -136,17 +137,21 @@ define([
         return o.getAttribute('data-bone');
       })), function() { // callback
         $orphans.each(function(j, v) {
-          skel.createBone({
-            type: v.getAttribute('data-bone'),
-            elem: v,
-            options: $(v).data()
-          }).on('bone:generated', skel.onBoneGenerated).generate().display();
+          var bone;
+          if(!v.hasAttribute('data-generate')) {
+            $(v).data('bone', skel.createBone({
+              type: v.getAttribute('data-bone'),
+              elem: v,
+              options: $(v).data()
+            }).on('bone:generated', skel.onBoneGenerated).generate().display());
+          }
         });
       });
 
       skel.trigger('skeleton:bones-loaded');
 
     }, // findBones
+
 
     /*
      * Initialize a Skeleton instance with various options
@@ -226,9 +231,11 @@ define([
       });
     }, // initializeBones
 
+
     kill: function() {
 
     }, // kill
+
 
     /*
      * Fires when a bone has been added anywhere. This can't be good

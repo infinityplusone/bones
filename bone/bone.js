@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.0
- * Date:       2016-10-27
+ * Version:    0.7.1
+ * Date:       2016-10-31
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.7.0',
+    VERSION: '0.7.1',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
