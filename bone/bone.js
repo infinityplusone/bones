@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.1
- * Date:       2016-10-31
+ * Version:    0.7.2
+ * Date:       2016-11-01
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.7.1',
+    VERSION: '0.7.2',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -303,7 +303,11 @@ define([
 
       bone.id = _.uniqueId();
 
-      bone.on('bone:created', bone.afterCreate);
+      if(typeof bone.elem==='undefined') {
+        bone.elem = _createElement($.extend({
+          'data-bone': this.type
+        }, bone.options));
+      }
 
       bone.afterCreate();
 
@@ -445,6 +449,21 @@ define([
   function _bindBoneToElement(e) {
     this.$elem.data('bone', this);
   } // _bindBoneToElement
+
+  /**
+   * Creates a generic document element 
+   */
+  function _createElement(attributes, appendTo) {
+    var elem = document.createElement('div');
+    if(attributes)
+    Object.keys(attributes).forEach(function(a) {
+      elem.setAttribute(a, attributes[a]);
+    });
+    if(appendTo) {
+      $(appendTo).append(elem);
+    }
+    return elem;
+  } // _createElement
 
   /**
    * @return {Array} The bone's default auto-generated class BLOQTYPE-bone
