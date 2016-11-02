@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.2
- * Date:       2016-11-01
+ * Version:    0.8.0
+ * Date:       2016-11-02
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.7.2',
+    VERSION: '0.8.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -222,7 +222,7 @@ define([
       }
       bone.state.generated = true;
       _onGenerated.call(bone);
-      bone.trigger('bone:generated');
+      bone.trigger('bone:generated', bone);
 
       return bone;
 

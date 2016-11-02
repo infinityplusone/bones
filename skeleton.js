@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.7.2
- * Date:       2016-11-01
+ * Version:    0.8.0
+ * Date:       2016-11-02
  *
  * Notes: 
  *
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.7.2',
+    VERSION: '0.8.0',
 
     name: 'Skeleton',
 
@@ -129,15 +129,13 @@ define([
     findBones: function(e, $elem) {
       var skel = this,
           $root = $elem ? $elem : $(skel.options.contentSelector),
-          $orphans;
+          $orphans,
+          bones;
       
       $orphans = $root.find(UNGENERATED_BONE);//.add($root.filter(UNGENERATED_BONE));
-      
-      skel.initializeBones($.makeArray($orphans.map(function(i, o) {
-        return o.getAttribute('data-bone');
-      })), function() { // callback
+
+      function callback() { // callback
         $orphans.each(function(j, v) {
-          var bone;
           if(!v.hasAttribute('data-generate')) {
             $(v).data('bone', skel.createBone({
               type: v.getAttribute('data-bone'),
@@ -146,7 +144,20 @@ define([
             }).on('bone:generated', skel.onBoneGenerated).generate().display());
           }
         });
+      } // callback
+
+      bones = _.uniq($.makeArray($orphans.map(function(i, o) {
+        return o.getAttribute('data-bone');
+      }))).filter(function(b) {
+        return typeof skel.shapes[b]==='undefined';
       });
+
+      if(bones.length>0) {
+        skel.initializeBones(bones, callback);
+      }
+      else {
+        callback();
+      }
 
       skel.trigger('skeleton:bones-loaded');
 
@@ -212,23 +223,25 @@ define([
     initializeBones: function(bones, callback) {
       var skel = this;
 
-      var dependencies = _.uniq(bones.map(function(bone) {
+      var dependencies = bones.map(function(bone) {
         if(bone.indexOf('/')<0) {
           return ['common', bone, bone].join('/');
         }
         return bone;
-      }));
+      });
 
-      requirejs(dependencies, function() {
-        Array.prototype.slice.call(arguments).forEach(function(bone) {
-          if(typeof skel.shapes[bone.type]==='undefined') {
-            skel.shapes[bone.type] = bone.init(skel);
+      if(dependencies.length>0) {
+        requirejs(dependencies, function() {
+          Array.prototype.slice.call(arguments).forEach(function(bone) {
+            if(typeof skel.shapes[bone.type]==='undefined') {
+              skel.shapes[bone.type] = bone.init(skel);
+            }
+          });
+          if(callback) {
+            callback();
           }
         });
-        if(callback) {
-          callback();
-        }
-      });
+      }
     }, // initializeBones
 
 
