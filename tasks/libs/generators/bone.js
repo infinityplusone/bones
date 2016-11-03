@@ -2,8 +2,8 @@
  * Provides generate:component to generate Grunt Task
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.8.0
- * Date:       2016-11-02
+ * Version:    0.9.0
+ * Date:       2016-11-03
  *
  */
 

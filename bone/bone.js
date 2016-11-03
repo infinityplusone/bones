@@ -4,8 +4,8 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.8.0
- * Date:       2016-11-02
+ * Version:    0.9.0
+ * Date:       2016-11-03
  *
  * Notes: 
  *
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.8.0',
+    VERSION: '0.9.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -187,6 +187,7 @@ define([
     display: function() {
       this.trigger('bone:display');
       this.beforeDisplay();
+      this.state.ready = true;
       this.ready(true);
       this.afterDisplay();
       this.trigger('bone:displayed');
@@ -501,8 +502,10 @@ define([
       throw new BoneError('Missing template `' + tmpl + '` for `' + bone.type + '`', bone);
     }
     try {
-      bone.content = brain.templates[tmpl](bone);
-      bone.$elem = $(bone.content);
+      bone.$elem = brain.templates[tmpl](bone); // return a jQuery object (which is stupid)
+      if(bone.$elem.find('[data-bone]').length>0) {
+        bone.options.hasBones = true;
+      }
       bone.$elem.addClass(bone.cls.join(' '));
       _bindBoneToElement.call(this);
       _addDefaultInteractions.call(this);
@@ -536,10 +539,7 @@ define([
    * Only important if a bone is not in a bucket
    */
   function _onReady() {
-    var bone = this;
-    if(!bone.bucket || typeof bone.bucket==='undefined') {
-      $(bone.elem).after(bone.$elem);
-    }
+    $(this.elem).after(this.$elem);
   } // _onReady
 
   return Bone;

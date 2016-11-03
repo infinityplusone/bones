@@ -4,8 +4,8 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.8.0
- * Date:       2016-11-02
+ * Version:    0.9.0
+ * Date:       2016-11-03
  *
  * Notes: 
  *
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.8.0',
+    VERSION: '0.9.0',
 
     name: 'Skeleton',
 
@@ -73,22 +73,33 @@ define([
 
     state: {
       ready: false,
-      loading: true,
+      loading: [],
       loaded: false
     }, // state
 
 
     /*
      * Create a new bone instance and return it
-     * @param opts {Object} Options for the bone
+     * @param opts {HTMLElement|Object} Either an HTML element or options containing
      *    - type {String} [required]
+     *    - options {Object} Options for the bone
      */
-    createBone: function(opts) {
+    createBone: function(source) {
 
-      var skel = this;
+      var skel = this,
+          opts, prototype, bone;
 
-      var prototype = skel.shapes[opts.type],
-          bone;
+      skel.state.loading.push(1);
+      skel.state.loaded = false;
+      skel.state.ready = false;
+
+      opts = !source.ELEMENT_NODE ? source : {
+        type: source.getAttribute('data-bone'),
+        elem: source,
+        options: $(source).data()
+      };
+
+      prototype = skel.shapes[opts.type];
 
       try {
         if(!prototype) {
@@ -110,14 +121,18 @@ define([
 
       bone.on('*', function(e, data) {
         switch(e.originalEvent.type) {
+          case 'bone:display':
+            
+            break;
           case 'bone:generated':
             skel.findBones(null, this.$elem);
+            skel.state.loading.pop();
             break;
           default:
             break;
         }
       });
-
+     
       return bone;
 
     }, // createBone
@@ -131,35 +146,38 @@ define([
           $root = $elem ? $elem : $(skel.options.contentSelector),
           $orphans,
           bones;
-      
-      $orphans = $root.find(UNGENERATED_BONE);//.add($root.filter(UNGENERATED_BONE));
+
+      $orphans = $root.find(UNGENERATED_BONE);
 
       function callback() { // callback
         $orphans.each(function(j, v) {
           if(!v.hasAttribute('data-generate')) {
-            $(v).data('bone', skel.createBone({
-              type: v.getAttribute('data-bone'),
-              elem: v,
-              options: $(v).data()
-            }).on('bone:generated', skel.onBoneGenerated).generate().display());
+            var bone = skel.createBone(v);
+            if(bone) {
+              bone.on('bone:generated', skel.onBoneGenerated).generate().display();
+            }
           }
         });
       } // callback
 
-      bones = _.uniq($.makeArray($orphans.map(function(i, o) {
-        return o.getAttribute('data-bone');
-      }))).filter(function(b) {
-        return typeof skel.shapes[b]==='undefined';
-      });
+      if($orphans.length>0) {
+        bones = _.uniq($.makeArray($orphans.map(function(i, o) {
+          return o.getAttribute('data-bone');
+        }))).filter(function(b) {
+          return typeof skel.shapes[b]==='undefined';
+        });
 
-      if(bones.length>0) {
-        skel.initializeBones(bones, callback);
+        if(bones.length>0) {
+          skel.initializeBones(bones, callback);
+        }
+        else {
+          callback.call(skel);
+        }
       }
-      else {
-        callback();
+      if(skel.state.loading.length===0) {
+        skel.trigger('skeleton:ready');
       }
-
-      skel.trigger('skeleton:bones-loaded');
+      // skel.trigger('skeleton:bones-loaded');
 
     }, // findBones
 
@@ -181,7 +199,7 @@ define([
 
       skel
         .on('skeleton:ready', skel.onSkeletonReady)
-        .on('skeleton:bones-loaded', skel.onBonesLoaded)
+        // .on('skeleton:bones-loaded', skel.onBonesLoaded)
         .on('skeleton:bone-added', skel.onBoneAdded);
 
       if(typeof settings.handlers==='object') {
@@ -190,25 +208,7 @@ define([
         });
       }
 
-      clearInterval(skel.state.loading);
       skel.findBones();
-
-      // this is the only place where a race condition might be created
-      skel.state.loading = setInterval(function() {
-        attempts++;
-        if($('[data-bone]:not([data-generated])').length===0) {
-          clearInterval(skel.state.loading);
-          skel.state.loading = false;
-          skel.state.loaded = true;
-          skel.trigger('skeleton:ready');
-        }
-        else if(attempts>1500) {
-          clearInterval(skel.state.loading);
-          skel.state.loading = false;
-          console.warn('Unable to load all bones. Aborting.');
-          skel.trigger('skeleton:ready');
-        }
-      }, 5);
 
       return skel;
 
@@ -238,7 +238,7 @@ define([
             }
           });
           if(callback) {
-            callback();
+            callback.call(skel);
           }
         });
       }
@@ -274,7 +274,7 @@ define([
     reset: function() {
       $('[data-bone-type]').remove();
       $('[data-bone]').removeAttr('data-generated');
-      this.init();
+      this.init({});
     }, // reset
 
 
