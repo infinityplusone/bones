@@ -4,7 +4,7 @@
  * Dependencies: brain, jquery, jquery-bindable, lodash, bone
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.9.0
+ * Version:    0.10.0
  * Date:       2016-11-03
  *
  * Notes: 
@@ -54,7 +54,7 @@ define([
 
   var Skeleton = brain.utils.bindable.create({
 
-    VERSION: '0.9.0',
+    VERSION: '0.10.0',
 
     name: 'Skeleton',
 
@@ -91,7 +91,6 @@ define([
 
       skel.state.loading.push(1);
       skel.state.loaded = false;
-      skel.state.ready = false;
 
       opts = !source.ELEMENT_NODE ? source : {
         type: source.getAttribute('data-bone'),
@@ -114,25 +113,15 @@ define([
       Skeleton.state.nextID++;
 
       opts = $.extend(opts, {
-        options: $.extend(true, {}, prototype.options, opts.options)
+        options: $.extend(true, {
+          handlers: {
+            '*': _boneHandler
+          },
+        }, prototype.options, opts.options)
       });
 
       bone = prototype.make(opts);
 
-      bone.on('*', function(e, data) {
-        switch(e.originalEvent.type) {
-          case 'bone:display':
-            
-            break;
-          case 'bone:generated':
-            skel.findBones(null, this.$elem);
-            skel.state.loading.pop();
-            break;
-          default:
-            break;
-        }
-      });
-     
       return bone;
 
     }, // createBone
@@ -142,10 +131,12 @@ define([
      * Find bones
      */
     findBones: function(e, $elem) {
+
       var skel = this,
           $root = $elem ? $elem : $(skel.options.contentSelector),
           $orphans,
           bones;
+
 
       $orphans = $root.find(UNGENERATED_BONE);
 
@@ -174,10 +165,10 @@ define([
           callback.call(skel);
         }
       }
+
       if(skel.state.loading.length===0) {
-        skel.trigger('skeleton:ready');
+        skel.trigger('skeleton:bones-loaded');
       }
-      // skel.trigger('skeleton:bones-loaded');
 
     }, // findBones
 
@@ -193,6 +184,9 @@ define([
 
       skel.off('*').off();
 
+      skel.state.ready = false;
+      skel.state.loaded = false;
+
       settings = settings ? settings : { };
 
       $.extend(skel.options, settings.options);
@@ -207,7 +201,6 @@ define([
           skel.on(evt, settings.handlers[evt]);
         });
       }
-
       skel.findBones();
 
       return skel;
@@ -264,8 +257,10 @@ define([
     onBoneGenerated: function(e) {}, // onBoneGenerated
 
     onSkeletonReady: function() {
-      this.state.ready = true;
-      this.messages.push([this.name + ' Ready', 'info']);
+      if(!this.state.ready) {
+        this.state.ready = true;
+        this.messages.push([this.name + ' Ready', this]);
+      }
     }, // onSkeletonReady
 
     /*
@@ -274,6 +269,7 @@ define([
     reset: function() {
       $('[data-bone-type]').remove();
       $('[data-bone]').removeAttr('data-generated');
+      this.state.ready = false;
       this.init({});
     }, // reset
 
@@ -286,6 +282,25 @@ define([
     } // toString
 
   }); // Skeleton
+
+  function _boneHandler(e, data) {
+    var skel = this.skel;
+    switch(e.originalEvent.type) {
+      case 'bone:displayed':
+        skel.state.loading.pop();
+        setTimeout(function() {
+          if(skel.state.loading.length===0) {
+            skel.trigger('skeleton:ready');
+          }
+        }, 50);
+        break;
+      case 'bone:generated':
+        skel.findBones(null, this.$elem);
+        break;
+      default:
+        break;
+    }
+  } // _boneHandler
 
   return Skeleton;
 

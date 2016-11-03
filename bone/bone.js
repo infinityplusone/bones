@@ -4,7 +4,7 @@
  * Dependencies: brain
  * 
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.9.0
+ * Version:    0.10.0
  * Date:       2016-11-03
  *
  * Notes: 
@@ -80,7 +80,7 @@ define([
 
   var Bone = brain.utils.bindable.create({
 
-    VERSION: '0.9.0',
+    VERSION: '0.10.0',
 
     cls: ['bone'],
     defaultSettings: defaultSettings,
@@ -170,9 +170,11 @@ define([
         bone.elem.removeAttribute('data-generated');
         bone.trigger('bone:destroy');
         bone.unbind();
+        _bindHandlers.call(bone);
         if(typeof destroy==='function') {
           destroy();
         }
+        bone.trigger('bone:destroyed');
       });
       if(!bone.state.busy) {
         bone.ready(false);
@@ -187,7 +189,6 @@ define([
     display: function() {
       this.trigger('bone:display');
       this.beforeDisplay();
-      this.state.ready = true;
       this.ready(true);
       this.afterDisplay();
       this.trigger('bone:displayed');
@@ -310,6 +311,8 @@ define([
         }, bone.options));
       }
 
+      _bindHandlers.call(bone);
+      
       bone.afterCreate();
 
       bone.trigger('bone:created');
@@ -382,8 +385,13 @@ define([
      *
      * @return {String} The bone
      */
-    regenerate: function() {
-      return this.destroy().generate();
+    regenerate: function(display) {
+      this.skel.state.ready = false;
+      this.destroy().generate();
+      if(display) {
+        return this.display();
+      }
+      return this;
     }, // regenerate
 
     /**
@@ -527,12 +535,31 @@ define([
    */
   function _onFail() {} // _onFail
 
+
+  function _bindHandlers() {
+
+    var bone = this;
+
+    if(typeof bone.options.handlers==='object') {
+      Object.keys(bone.options.handlers).forEach(function(evt) {
+        if(typeof evt==='string') {
+          bone.on(evt, bone.options.handlers[evt]);
+        }
+      });
+    }
+
+  } // _bindHandlers
+
+
   /**
    * Internal method called after a bone has been generated
    */
   function _onGenerated() {
+
     this.elem.setAttribute('data-generated', true);
+
   } // _onGenerated
+
 
   /**
    * Internal method called when a bone is ready for display

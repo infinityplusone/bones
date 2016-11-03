@@ -2,7 +2,7 @@
  * Provides generate:bone-less to generate Grunt Task
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.9.0
+ * Version:    0.10.0
  * Date:       2016-11-03
  *
  */

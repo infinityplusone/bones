@@ -2,7 +2,7 @@
  * Provides generate.js as Grunt task
  *
  * Author(s):  Jonathan "Yoni" Knoll
- * Version:    0.9.0
+ * Version:    0.10.0
  * Date:       2016-11-03
  *
  */
